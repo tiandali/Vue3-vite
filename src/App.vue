@@ -104,15 +104,20 @@ export default {
       childTitle.value = '子组件标题变化';
     }, 2000);
     //依赖收集会监听数据改变从而触发
-    watchEffect(async (onInvalidate) => {
-      console.log('watchEffect-childTitle', childTitle.value);
-      const data = await getdate();
-      onInvalidate(() => {
-        console.log(
-          'onInvalidate is triggered,当再次触发时会先执行这个函数里的东西，然后执行依赖的值部分'
-        );
-      });
-    });
+    watchEffect(
+      async (onInvalidate) => {
+        console.log('watchEffect-childTitle', childTitle.value);
+        const data = await getdate();
+        onInvalidate(() => {
+          console.log(
+            'onInvalidate is triggered,当再次触发时会先执行这个函数里的东西，然后执行依赖的值部分'
+          );
+        });
+      }
+      // {
+      // flush: 'sync',//同步执行
+      // }
+    );
     //当被调用时会卸载停止
     // const stop = watchEffect(() => {
     //   console.log('watchEffect-childTitle', childTitle.value);
