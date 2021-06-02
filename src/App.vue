@@ -104,6 +104,7 @@ export default {
       childTitle.value = '子组件标题变化';
     }, 2000);
     //依赖收集会监听数据改变从而触发
+
     watchEffect(
       async (onInvalidate) => {
         console.log('watchEffect-childTitle', childTitle.value);
