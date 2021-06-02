@@ -108,6 +108,7 @@ export default {
       async (onInvalidate) => {
         console.log('watchEffect-childTitle', childTitle.value);
         const data = await getdate();
+
         onInvalidate(() => {
           console.log(
             'onInvalidate is triggered,当再次触发时会先执行这个函数里的东西，然后执行依赖的值部分'
