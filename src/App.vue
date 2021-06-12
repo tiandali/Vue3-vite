@@ -6,6 +6,7 @@
     <h4 class="name">{{count3}}</h4>
     <HelloWorld msg="Hello Vue 3 + Vite" />
     <Child :title="childTitle" />
+    <button @click="changeTitle">change</button>
     <Count :count="childCount" @add="addCount" />
     <div>
       {{text}}
@@ -33,6 +34,11 @@ import {
   customRef,
   computed,
   watchEffect,
+  shallowRef,
+  isReactive,
+  triggerRef,
+  readonly, //只读的，watcheffect可以监查到
+  watch,
 } from 'vue';
 function useDebouncedRef(value, delay = 200) {
   let timeout;
@@ -98,12 +104,37 @@ export default {
     console.log('item.name: ', item.name);
     item.name = '王五';
     console.log('nameref: ', nameref.value);
-
+    //当使用shallowRef时如果改变了值，就会变成非reactive的数据,会使watchEffect捕获不到，所以要用triggerRef重新包一下。
+    const info2 = shallowRef({
+      name: '张三',
+    });
+    info2.value = {
+      name: '李四',
+    };
+    console.log('info2', isReactive(info2));
+    triggerRef(info2);
+    console.log('info2', isReactive(info2));
     const childTitle = ref('子组件标题初始化');
-    setTimeout(() => {
+    const watchValue = ref(0);
+    const changeTitle = () => {
       childTitle.value = '子组件标题变化';
-    }, 2000);
+      watchValue.value++;
+    };
+
     //依赖收集会监听数据改变从而触发
+    watch(
+      () => {
+        //return 的就是监听的指定的数据，如果是多个数据就用数组包裹[a,b]
+        return watchValue.value;
+      },
+      (curvalue, oldvalue, onInvalidate) => {
+        //如果是多个就是([cura,curb],[olda,oldb])
+        console.log('curvalue,oldvalue: ', curvalue, oldvalue);
+        onInvalidate(() => {
+          console.log('执行watch的onInvalidate函数');
+        });
+      }
+    );
 
     watchEffect(
       async (onInvalidate) => {
@@ -159,6 +190,7 @@ export default {
       childTitle,
       childCount,
       addCount,
+      changeTitle,
       text,
     };
     // return () => h('h2', [count1.value, state.count2, '测试值']); //可以用render函数，返回
